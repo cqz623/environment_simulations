@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#080c16" />
+    <meta name="description" content="An interactive three-dimensional map of artists, songs, and playlists." />
+    <title>Echo Atlas — Music Discovery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./src/styles.css" />
+    <script type="importmap">
+      { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js" } }
+    </script>
+    <script type="module" src="./src/main.js"></script>
+  </head>
+  <body>
+    <canvas id="scene" aria-label="Interactive three-dimensional music relationship graph"></canvas>
+    <div class="ambient-haze" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="brand-name">echo<span>atlas</span><i>.</i></div>
+      </div>
+      <div class="header-divider"></div>
+      <div class="header-label">A MUSIC DISCOVERY UNIVERSE <span>/</span> INTERACTIVE MODEL</div>
+      <div class="topbar-actions">
+        <span class="live-indicator"><span class="live-dot"></span> LIVE MODEL</span>
+        <button class="reset-button" id="reset-demo" type="button" title="Restore the original sample data">Reset demo</button>
+      </div>
+    </header>
+
+    <main>
+      <aside class="overview panel" aria-label="Collection overview">
+        <div class="panel-kicker"><span class="kicker-line"></span> THE COLLECTION</div>
+        <h1>Every song has<br /><em>a story.</em></h1>
+        <p class="intro">Explore how sounds connect. Select a node to follow its artist, songs, and playlists.</p>
+        <div class="stat-grid" aria-label="Collection totals">
+          <div class="stat-card"><strong id="artist-count">0</strong><span>ARTISTS</span></div>
+          <div class="stat-card"><strong id="song-count">0</strong><span>SONGS</span></div>
+          <div class="stat-card"><strong id="playlist-count">0</strong><span>PLAYLISTS</span></div>
+        </div>
+        <div class="overview-divider"></div>
+        <div class="legend-title">MAP KEY</div>
+        <div class="legend-row"><span class="legend-shape artist-shape"></span><span>Artist</span><small>creates</small></div>
+        <div class="legend-row"><span class="legend-shape song-shape"></span><span>Song</span><small>belongs to</small></div>
+        <div class="legend-row"><span class="legend-shape playlist-shape"></span><span>Playlist</span><small>contains</small></div>
+        <div class="overview-divider"></div>
+        <div class="map-hint"><span class="hint-icon">✥</span><span>Drag to move <b>·</b> Scroll to zoom<br />Click a node to explore</span></div>
+      </aside>
+
+      <div class="map-heading" aria-hidden="true">
+        <span>THE SOUND MAP</span>
+        <div class="map-heading-rule"></div>
+        <span>01 — 03</span>
+      </div>
+
+      <aside class="inspector panel" aria-label="Selected item details">
+        <div class="inspector-topline"><span class="panel-kicker"><span class="kicker-line"></span> NOW INSPECTING</span><span class="corner-decoration">✳</span></div>
+        <div id="detail-content"></div>
+      </aside>
+    </main>
+
+    <div class="bottom-wrap">
+      <div class="playback-panel" aria-live="polite">
+        <div class="record-icon" id="record-icon" aria-hidden="true"><div class="record-center"></div></div>
+        <div class="playback-copy"><span class="playback-eyebrow" id="playback-status">NOT PLAYING</span><strong id="playback-title">Select a song to play</strong><span id="playback-artist">A little sound for your journey</span></div>
+        <div class="playback-bars" id="playback-bars" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <nav class="toolbar" aria-label="Music model actions">
+        <button class="tool-button" id="create-playlist" type="button" title="Create a playlist"><span class="tool-icon">＋</span><span>New playlist</span></button>
+        <button class="tool-button" id="add-song" type="button" title="Add a song to a playlist"><span class="tool-icon">↗</span><span>Add song</span></button>
+        <button class="tool-button" id="remove-song" type="button" title="Remove a song from a playlist"><span class="tool-icon">−</span><span>Remove song</span></button>
+        <button class="tool-button" id="delete-playlist" type="button" title="Delete a playlist"><span class="tool-icon">×</span><span>Delete playlist</span></button>
+        <span class="toolbar-divider"></span>
+        <button class="tool-button play-tool" id="play-song" type="button" title="Play a song"><span class="tool-icon play-symbol">▶</span><span>Play song</span></button>
+        <button class="tool-button" id="pause-song" type="button" title="Pause the playing song" disabled><span class="tool-icon pause-symbol">Ⅱ</span><span>Pause</span></button>
+      </nav>
+    </div>
+
+    <dialog id="action-dialog" class="action-dialog" aria-labelledby="dialog-title">
+      <form id="action-form" method="dialog">
+        <div class="dialog-top"><div><div class="panel-kicker"><span class="kicker-line"></span> MANAGE COLLECTION</div><h2 id="dialog-title"></h2></div><button id="close-dialog" class="dialog-close" type="button" aria-label="Close dialog">×</button></div>
+        <p id="dialog-description"></p>
+        <div id="dialog-fields"></div>
+        <p id="dialog-error" class="dialog-error" role="alert"></p>
+        <div class="dialog-actions"><button class="dialog-cancel" id="cancel-dialog" type="button">Cancel</button><button class="dialog-submit" id="submit-dialog" type="submit"></button></div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="scene-fallback" class="scene-fallback" hidden>
+      <strong>Unable to load the 3D map.</strong>
+      <span>Check your connection and reload this page. The Three.js module is loaded from jsDelivr.</span>
+    </div>
+  </body>
+</html>
